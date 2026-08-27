@@ -1,218 +1,119 @@
-    ```python
+
 import csv
 
 arquivo = "LIVROS.CSV"
 
-
-def carregar_livros():
+def carregar():
     livros = []
-
     try:
         with open(arquivo, "r", encoding="utf-8") as f:
             leitor = csv.DictReader(f)
-
-            for linha in leitor:
-                livro = {
-                    "titulo": linha["titulo"],
-                    "autor": linha["autor"],
-                    "ano": linha["ano"],
-                    "isbn": linha["isbn"],
-                    "status": linha["status"]
-                }
-
+            for livro in leitor:
                 livros.append(livro)
-
-    except FileNotFoundError:
-        print("Arquivo não encontrado.")
-
+    except:
+        pass
     return livros
 
-
-def salvar_livros(livros):
+def salvar(livros):
     with open(arquivo, "w", newline="", encoding="utf-8") as f:
-
         campos = ["titulo", "autor", "ano", "isbn", "status"]
-
         escritor = csv.DictWriter(f, fieldnames=campos)
-
         escritor.writeheader()
         escritor.writerows(livros)
 
-
-def procurar_livro(livros, isbn):
+def buscar_isbn(livros, isbn):
     for livro in livros:
         if livro["isbn"] == isbn:
             return livro
-
     return None
 
-
-def cadastrar(livros):
-
-    print("\n--- CADASTRAR LIVRO ---")
-
-    titulo = input("Digite o título: ")
-    autor = input("Digite o autor: ")
-    ano = input("Digite o ano: ")
-    isbn = input("Digite o ISBN: ")
-
-    if procurar_livro(livros, isbn) != None:
-        print("Esse ISBN já está cadastrado.")
-        return
-
-    livro = {
-        "titulo": titulo,
-        "autor": autor,
-        "ano": ano,
-        "isbn": isbn,
-        "status": "Disponível"
-    }
-
-    livros.append(livro)
-
-    salvar_livros(livros)
-
-    print("Livro cadastrado!")
-
-
-def emprestar(livros):
-
-    print("\n--- EMPRESTAR LIVRO ---")
-
-    isbn = input("Digite o ISBN: ")
-
-    livro = procurar_livro(livros, isbn)
-
-    if livro == None:
-        print("Livro não encontrado.")
-        return
-
-    if livro["status"] == "Emprestado":
-        print("Esse livro já está emprestado.")
-        return
-
-    livro["status"] = "Emprestado"
-
-    salvar_livros(livros)
-
-    print("Livro emprestado!")
-
-
-def devolver(livros):
-
-    print("\n--- DEVOLVER LIVRO ---")
-
-    isbn = input("Digite o ISBN: ")
-
-    livro = procurar_livro(livros, isbn)
-
-    if livro == None:
-        print("Livro não encontrado.")
-        return
-
-    if livro["status"] == "Disponível":
-        print("Esse livro já está disponível.")
-        return
-
-    livro["status"] = "Disponível"
-
-    salvar_livros(livros)
-
-    print("Livro devolvido!")
-
-
-def listar(livros):
-
-    print("\n--- LIVROS ---")
-
-    if len(livros) == 0:
-        print("Nenhum livro cadastrado.")
-        return
-
-    for livro in livros:
-
-        print("--------------------")
-        print("Título:", livro["titulo"])
-        print("Autor:", livro["autor"])
-        print("Ano:", livro["ano"])
-        print("ISBN:", livro["isbn"])
-        print("Status:", livro["status"])
-
-
-def buscar(livros):
-
-    print("\n--- BUSCAR LIVRO ---")
-
-    texto = input("Digite o título, autor ou ISBN: ").lower()
-
-    achou = False
-
-    for livro in livros:
-
-        if texto in livro["titulo"].lower():
-            print("\nTítulo:", livro["titulo"])
-            print("Autor:", livro["autor"])
-            print("Ano:", livro["ano"])
-            print("ISBN:", livro["isbn"])
-            print("Status:", livro["status"])
-            achou = True
-
-        elif texto in livro["autor"].lower():
-            print("\nTítulo:", livro["titulo"])
-            print("Autor:", livro["autor"])
-            print("Ano:", livro["ano"])
-            print("ISBN:", livro["isbn"])
-            print("Status:", livro["status"])
-            achou = True
-
-        elif texto in livro["isbn"].lower():
-            print("\nTítulo:", livro["titulo"])
-            print("Autor:", livro["autor"])
-            print("Ano:", livro["ano"])
-            print("ISBN:", livro["isbn"])
-            print("Status:", livro["status"])
-            achou = True
-
-    if achou == False:
-        print("Livro não encontrado.")
-
-
-livros = carregar_livros()
+livros = carregar()
 
 while True:
-
-    print("\n===== BIBLIOTECA =====")
-    print("1 - Cadastrar livro")
-    print("2 - Emprestar livro")
-    print("3 - Devolver livro")
-    print("4 - Listar livros")
-    print("5 - Buscar livro")
+    print("\n--- BIBLIOTECA ---")
+    print("1 - Cadastrar")
+    print("2 - Emprestar")
+    print("3 - Devolver")
+    print("4 - Listar")
+    print("5 - Buscar")
     print("0 - Sair")
 
-    opcao = input("Escolha uma opção: ")
+    opcao = input("Escolha: ")
 
     if opcao == "1":
-        cadastrar(livros)
+        titulo = input("Título: ")
+        autor = input("Autor: ")
+        ano = input("Ano: ")
+        isbn = input("ISBN: ")
+
+        if buscar_isbn(livros, isbn):
+            print("ISBN já cadastrado!")
+        else:
+            livros.append({
+                "titulo": titulo,
+                "autor": autor,
+                "ano": ano,
+                "isbn": isbn,
+                "status": "Disponível"
+            })
+            salvar(livros)
+            print("Livro cadastrado!")
 
     elif opcao == "2":
-        emprestar(livros)
+        isbn = input("ISBN: ")
+        livro = buscar_isbn(livros, isbn)
+
+        if livro == None:
+            print("Livro não encontrado!")
+        elif livro["status"] == "Emprestado":
+            print("Livro já emprestado!")
+        else:
+            livro["status"] = "Emprestado"
+            salvar(livros)
+            print("Livro emprestado!")
 
     elif opcao == "3":
-        devolver(livros)
+        isbn = input("ISBN: ")
+        livro = buscar_isbn(livros, isbn)
+
+        if livro == None:
+            print("Livro não encontrado!")
+        else:
+            livro["status"] = "Disponível"
+            salvar(livros)
+            print("Livro devolvido!")
 
     elif opcao == "4":
-        listar(livros)
+        if len(livros) == 0:
+            print("Nenhum livro cadastrado.")
+        else:
+            for livro in livros:
+                print("\nTítulo:", livro["titulo"])
+                print("Autor:", livro["autor"])
+                print("Ano:", livro["ano"])
+                print("ISBN:", livro["isbn"])
+                print("Status:", livro["status"])
 
     elif opcao == "5":
-        buscar(livros)
+        pesquisa = input("Digite o título, autor ou ISBN: ").lower()
+
+        for livro in livros:
+            if (pesquisa in livro["titulo"].lower() or
+                pesquisa in livro["autor"].lower() or
+                pesquisa in livro["isbn"].lower()):
+                
+                print("\nTítulo:", livro["titulo"])
+                print("Autor:", livro["autor"])
+                print("Ano:", livro["ano"])
+                print("ISBN:", livro["isbn"])
+                print("Status:", livro["status"])
 
     elif opcao == "0":
-        print("Programa encerrado.")
+        print("Saindo...")
         break
 
     else:
-        print("Opção inválida.")
+        print("Opção inválida!")
 ```
-
 
     
